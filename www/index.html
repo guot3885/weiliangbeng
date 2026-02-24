@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <title>医学微量泵计算工具</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="icon" href="assets/icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="微量泵计算器">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 加载指示器 -->
+    <div id="loading-indicator" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="mt-4 text-blue-600 font-medium">加载中...</p>
+        </div>
+    </div>
+
+    <!-- 应用容器 -->
+    <div id="app" class="container mx-auto px-4 py-6 max-w-md hidden">
+        <!-- 顶部导航栏 -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-700">医学微量泵计算工具</h1>
+            <div class="flex space-x-3">
+                <button id="history-btn" class="p-2 rounded-full bg-blue-100 text-blue-700" title="历史记录">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button id="settings-btn" class="p-2 rounded-full bg-blue-100 text-blue-700" title="设置">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main>
+            <!-- 计算类型选择 -->
+            <div class="mb-6">
+                <div class="flex rounded-lg overflow-hidden border border-gray-300">
+                    <button id="type-rate" class="flex-1 py-3 px-4 bg-blue-600 text-white font-medium">
+                        速度计算
+                    </button>
+                    <button id="type-concentration" class="flex-1 py-3 px-4 bg-white text-gray-700 font-medium">
+                        浓度计算
+                    </button>
+                </div>
+            </div>
+
+            <!-- 计算表单 -->
+            <div id="calculator-form" class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <!-- 药物选择 -->
+                <div class="mb-4">
+                    <label for="drug" class="block text-sm font-medium text-gray-700 mb-1">药物名称</label>
+                    <div class="relative">
+                        <select id="drug" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
+                            <option value="">请选择药物</option>
+                            <option value="dopamine">多巴胺</option>
+                            <option value="dobutamine">多巴酚丁胺</option>
+                            <option value="norepinephrine">去甲肾上腺素</option>
+                            <option value="epinephrine">肾上腺素</option>
+                            <option value="isoproterenol">异丙肾上腺素</option>
+                            <option value="phenylephrine">去氧肾上腺素</option>
+                            <option value="vasopressin">血管加压素</option>
+                            <option value="custom">自定义药物</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自定义药物名称 -->
+                <div id="custom-drug-container" class="mb-4 hidden">
+                    <label for="custom-drug" class="block text-sm font-medium text-gray-700 mb-1">自定义药物名称</label>
+                    <input type="text" id="custom-drug" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入药物名称">
+                </div>
+
+                <!-- 体重输入 -->
+                <div class="mb-4">
+                    <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">体重 (kg)</label>
+                    <div class="relative">
+                        <input type="number" id="weight" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入体重">
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <span class="text-gray-400">kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 速度计算表单 (默认显示) -->
+                <div id="rate-form">
+                    <!-- 药物剂量 -->
+                    <div class="mb-4">
+                        <label for="dose" class="block text-sm font-medium text-gray-700 mb-1">药物剂量 (μg/kg/min)</label>
+                        <div class="relative">
+                            <input type="number" id="dose" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入剂量">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">μg/kg/min</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 药物总量 -->
+                    <div class="mb-4">
+                        <label for="total-drug" class="block text-sm font-medium text-gray-700 mb-1">药物总量 (mg)</label>
+                        <div class="relative">
+                            <input type="number" id="total-drug" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入药物总量">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">mg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 稀释液量 -->
+                    <div class="mb-4">
+                        <label for="dilution" class="block text-sm font-medium text-gray-700 mb-1">稀释液量 (ml)</label>
+                        <div class="relative">
+                            <input type="number" id="dilution" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入稀释液量">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">ml</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 浓度计算表单 (默认隐藏) -->
+                <div id="concentration-form" class="hidden">
+                    <!-- 泵速 -->
+                    <div class="mb-4">
+                        <label for="rate" class="block text-sm font-medium text-gray-700 mb-1">泵速 (ml/h)</label>
+                        <div class="relative">
+                            <input type="number" id="rate" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入泵速">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">ml/h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 药物总量 -->
+                    <div class="mb-4">
+                        <label for="total-drug-conc" class="block text-sm font-medium text-gray-700 mb-1">药物总量 (mg)</label>
+                        <div class="relative">
+                            <input type="number" id="total-drug-conc" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入药物总量">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">mg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 稀释液量 -->
+                    <div class="mb-4">
+                        <label for="dilution-conc" class="block text-sm font-medium text-gray-700 mb-1">稀释液量 (ml)</label>
+                        <div class="relative">
+                            <input type="number" id="dilution-conc" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入稀释液量">
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-400">ml</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 计算按钮 -->
+                <button id="calculate-btn" class="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    计算
+                </button>
+            </div>
+
+            <!-- 计算结果 -->
+            <div id="result-container" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">计算结果</h2>
+                <div id="result-content" class="space-y-4">
+                    <!-- 结果将在这里动态生成 -->
+                </div>
+                <div class="mt-6 flex space-x-3">
+                    <button id="save-btn" class="flex-1 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-save mr-2"></i> 保存
+                    </button>
+                    <button id="share-btn" class="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-share-alt mr-2"></i> 分享
+                    </button>
+                </div>
+            </div>
+
+            <!-- 快速参考 -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">快速参考</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <span class="text-gray-700">多巴胺常用剂量</span>
+                        <span class="font-medium">2-20 μg/kg/min</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <span class="text-gray-700">去甲肾上腺素常用剂量</span>
+                        <span class="font-medium">0.05-0.5 μg/kg/min</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <span class="text-gray-700">肾上腺素常用剂量</span>
+                        <span class="font-medium">0.01-0.1 μg/kg/min</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">多巴酚丁胺常用剂量</span>
+                        <span class="font-medium">2-20 μg/kg/min</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航 -->
+        <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4">
+            <div class="flex justify-around">
+                <button id="home-btn" class="flex flex-col items-center text-blue-600">
+                    <i class="fas fa-home text-xl"></i>
+                    <span class="text-xs mt-1">首页</span>
+                </button>
+                <button id="favorites-btn" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-star text-xl"></i>
+                    <span class="text-xs mt-1">收藏</span>
+                </button>
+                <button id="tools-btn" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-tools text-xl"></i>
+                    <span class="text-xs mt-1">工具</span>
+                </button>
+                <button id="about-btn" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-info-circle text-xl"></i>
+                    <span class="text-xs mt-1">关于</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 历史记录模态框 -->
+    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800">历史记录</h2>
+                <button id="close-history-btn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="history-list" class="p-4 overflow-y-auto max-h-[60vh]">
+                <!-- 历史记录将在这里动态生成 -->
+                <div class="text-center text-gray-500 py-8">暂无历史记录</div>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <button id="clear-history-btn" class="w-full py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                    清空历史记录
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800">设置</h2>
+                <button id="close-settings-btn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- 主题设置 -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-800 mb-3">主题设置</h3>
+                    <div class="flex rounded-lg overflow-hidden border border-gray-300">
+                        <button id="theme-light" class="flex-1 py-3 px-4 bg-white text-gray-700 font-medium border-r border-gray-300">
+                            浅色
+                        </button>
+                        <button id="theme-dark" class="flex-1 py-3 px-4 bg-gray-800 text-white font-medium">
+                            深色
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 数据管理 -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-800 mb-3">数据管理</h3>
+                    <div class="space-y-3">
+                        <button id="export-data-btn" class="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-download mr-2"></i> 导出数据
+                        </button>
+                        <button id="import-data-btn" class="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-upload mr-2"></i> 导入数据
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 关于 -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-800 mb-3">关于</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm">版本: 1.0.0</p>
+                        <p class="text-gray-600 text-sm mt-2">医学微量泵计算工具是一款专为医护人员设计的实用工具，可快速计算药物泵入速度和浓度。</p>
+                        <p class="text-gray-600 text-sm mt-2">本工具仅供参考，实际用药请以医嘱为准。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收藏页面 -->
+    <div id="favorites-page" class="container mx-auto px-4 py-6 max-w-md hidden">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-700">我的收藏</h1>
+            <button id="back-from-favorites-btn" class="p-2 rounded-full bg-blue-100 text-blue-700">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </header>
+        <div id="favorites-list" class="space-y-4">
+            <!-- 收藏的计算结果将在这里动态生成 -->
+            <div class="text-center text-gray-500 py-8">暂无收藏记录</div>
+        </div>
+    </div>
+
+    <!-- 工具页面 -->
+    <div id="tools-page" class="container mx-auto px-4 py-6 max-w-md hidden">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-700">实用工具</h1>
+            <button id="back-from-tools-btn" class="p-2 rounded-full bg-blue-100 text-blue-700">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </header>
+        <div class="grid grid-cols-2 gap-4">
+            <button class="bg-white rounded-xl shadow-md p-4 flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-2">
+                    <i class="fas fa-calculator text-xl"></i>
+                </div>
+                <span class="text-gray-800 font-medium">单位换算</span>
+            </button>
+            <button class="bg-white rounded-xl shadow-md p-4 flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-2">
+                    <i class="fas fa-procedures text-xl"></i>
+                </div>
+                <span class="text-gray-800 font-medium">体重计算</span>
+            </button>
+            <button class="bg-white rounded-xl shadow-md p-4 flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mb-2">
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+                <span class="text-gray-800 font-medium">药物剂量表</span>
+            </button>
+            <button class="bg-white rounded-xl shadow-md p-4 flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 mb-2">
+                    <i class="fas fa-book-medical text-xl"></i>
+                </div>
+                <span class="text-gray-800 font-medium">用药参考</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 关于页面 -->
+    <div id="about-page" class="container mx-auto px-4 py-6 max-w-md hidden">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-700">关于应用</h1>
+            <button id="back-from-about-btn" class="p-2 rounded-full bg-blue-100 text-blue-700">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </header>
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="flex justify-center mb-6">
+                <img src="assets/icons/icon-192x192.png" alt="应用图标" class="w-24 h-24">
+            </div>
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-2">医学微量泵计算工具</h2>
+            <p class="text-center text-gray-500 mb-6">版本 1.0.0</p>
+            <div class="space-y-4 text-gray-700">
+                <p>医学微量泵计算工具是一款专为医护人员设计的实用工具，可快速计算药物泵入速度和浓度。</p>
+                <p>主要功能：</p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>药物泵入速度计算</li>
+                    <li>药物浓度计算</li>
+                    <li>计算结果保存与分享</li>
+                    <li>常用药物剂量参考</li>
+                    <li>数据导入导出</li>
+                </ul>
+                <p class="mt-4">本工具仅供参考，实际用药请以医嘱为准。</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">联系我们</h2>
+            <div class="space-y-3">
+                <a href="mailto:support@medical-tool.com" class="flex items-center text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-envelope w-6"></i>
+                    <span>support@medical-tool.com</span>
+                </a>
+                <a href="#" class="flex items-center text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-globe w-6"></i>
+                    <span>www.medical-tool.com</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cordova脚本 -->
+    <script type="text/javascript" src="cordova.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

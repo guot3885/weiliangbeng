@@ -1,0 +1,45 @@
+{
+  "name": "医学微量泵计算工具",
+  "short_name": "微量泵计算器",
+  "description": "用于快速计算微量泵的泵入速度和溶液浓度的医疗工具",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/splash/splash.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "速度计算",
+      "short_name": "速度",
+      "description": "计算药物泵入速度",
+      "url": "index.html?type=rate",
+      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "浓度计算",
+      "short_name": "浓度",
+      "description": "计算药物浓度",
+      "url": "index.html?type=concentration",
+      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["medical", "productivity", "tools"],
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}

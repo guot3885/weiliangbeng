@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.medical.pumpcalculator" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>医学微量泵计算工具</name>
+    <description>用于快速计算微量泵的泵入速度和溶液浓度的医疗工具</description>
+    <author email="dev@medical-tool.com" href="http://medical-tool.com">Medical Tool Team</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <icon density="ldpi" src="res/icon/android/icon-36-ldpi.png" />
+        <icon density="mdpi" src="res/icon/android/icon-48-mdpi.png" />
+        <icon density="hdpi" src="res/icon/android/icon-72-hdpi.png" />
+        <icon density="xhdpi" src="res/icon/android/icon-96-xhdpi.png" />
+        <icon density="xxhdpi" src="res/icon/android/icon-144-xxhdpi.png" />
+        <icon density="xxxhdpi" src="res/icon/android/icon-192-xxxhdpi.png" />
+        <splash density="ldpi" src="res/screen/android/splash-ldpi.png" />
+        <splash density="mdpi" src="res/screen/android/splash-mdpi.png" />
+        <splash density="hdpi" src="res/screen/android/splash-hdpi.png" />
+        <splash density="xhdpi" src="res/screen/android/splash-xhdpi.png" />
+        <splash density="xxhdpi" src="res/screen/android/splash-xxhdpi.png" />
+        <splash density="xxxhdpi" src="res/screen/android/splash-xxxhdpi.png" />
+        <preference name="AndroidPersistentFileLocation" value="Internal" />
+        <preference name="AndroidExtraFilesystems" value="sdcard,cache" />
+        <preference name="StatusBarOverlaysWebView" value="false" />
+        <preference name="StatusBarBackgroundColor" value="#1e40af" />
+        <preference name="StatusBarStyle" value="lightcontent" />
+        <preference name="SplashScreen" value="screen" />
+        <preference name="SplashScreenDelay" value="3000" />
+        <preference name="ShowSplashScreenSpinner" value="false" />
+        <preference name="AutoHideSplashScreen" value="true" />
+        <preference name="Fullscreen" value="false" />
+        <preference name="Orientation" value="portrait" />
+    </platform>
+    <preference name="ScrollEnabled" value="false" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="DisableContextMenu" value="true" />
+    <preference name="AndroidMinSdkVersion" value="21" />
+    <preference name="AndroidTargetSdkVersion" value="30" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.5" />
+    <plugin name="cordova-plugin-statusbar" spec="^3.0.0" />
+    <plugin name="cordova-plugin-splashscreen" spec="^6.0.1" />
+    <plugin name="cordova-plugin-file" spec="^7.0.0" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.7.1" />
+    <plugin name="cordova-plugin-android-permissions" spec="^1.1.5" />
+    <plugin name="cordova-plugin-sharing" spec="^0.1.4" />
+    <plugin name="cordova-plugin-dialogs" spec="^2.0.2" />
+</widget>
